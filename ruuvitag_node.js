@@ -1,14 +1,18 @@
-const _url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-mjiefpu/endpoint/data/v1/action/findOne";
+/* 
+	npm install mongodb
+*/
 
-// Tarttee API avaimen omaan databasee joka löytyy sieltä MongoDB sivuilta
-const apiKey = "H5BSBKs5bEPavMlZZsSmAqRQ7i9scLtOT5XlwXpUkfoemTp6LTp5mZZSRRO1wYaB";
+const _url = "";
 
-// Tää pitäs täyttää sun oman databasen tietojen mukaan
+// You'll need an API key for your own database, which can be found on the MongoDB website.
+const apiKey = "";
+
+// This should be filled according to the data in your own database.
 const searchPayload = {
-	dataSource: "Cluster0",
-	database: "Urban&Local",
-	collection: "Sensor_data",
-	filter: { }, // Tähän voi laittaa esim. ajan ja päivämäärän
+	dataSource: "", // Your cluster name
+	database: "", // Your database name
+	collection: "", // Your database collection name
+	filter: { }, // You can include the time and date here (if you want), or it can be left empty for now.
 };
 
 const headers = {
@@ -48,7 +52,7 @@ fetch(_url, {
 		console.log(response.status);
 		console.log("Error");
 	}
-	return response.json(); // Antaa datan json muodossa (voi muuttaa response.text jos halutaan tekstinä)
+	return response.json(); // Provide the data in JSON format (can change response.text if text is preferred).
 })
 .then((data) => {
 	var jsonData = JSON.stringify(data);

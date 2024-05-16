@@ -1,15 +1,14 @@
-# Vaatii toimiakseen:
+# Requires to download:
 # python -m pip install ruuvitag-sensor
 # pip install requests
 import json
-
 import requests
-from datetime import datetime
-
 import asyncio
+
+from datetime import datetime
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
-# Tässä vaan tallennan ajan ja päivämäärän et sen voi laittaa siihen tietokanta dokumenttiin
+# Here, only the time and date are saved so that they can be added to the database document
 now = datetime.now()
 date = now.strftime("%d/%m/%Y")
 time = now.strftime("%H:%M:%S")
@@ -17,20 +16,19 @@ time = now.strftime("%H:%M:%S")
 async def main():
 	print("Data collection started...")
 
-	# Määrittää ne MAC-osoitteet, joista data haetaan
-	# Jos macs on tyhjä, ottaa kaikista löydetyistä datan
-	# macs = ["E2:70:D7:96:45:18", "DD:83:3D:A4:CE:C6", "DD:42:FA:12:2A:CD", "EE:DF:9F:BA:8D:49"]
-	macs = ["E2:70:D7:96:45:18"]
-	
+	# Defines the MAC addresses from which data is retrieved
+	# If macs is empty, it retrieves data from all detected ones
+	macs = [""]
 	datas = []
-	async for found_data in RuuviTagSensor.get_data_async(macs): # Dataa tulee noin 10 sekunnin välein
+
+	async for found_data in RuuviTagSensor.get_data_async(macs): # Data arrives approximately every 10 seconds
 		amountOfData = int(len(datas) / 2) + 1
 		targetAmount = 600
 		elapsedTime = (targetAmount * 10) / 60
 
 		tagName = ""
-		match found_data[0]: # Määrittää ruuvitagien nimet MAC-osotteiden perusteella
-			case "": # Laita halutun anturin MAC-osoite ja valitse nimi
+		match found_data[0]: # Defines the names of the RuuviTags based on their MAC addresses
+			case "": # Enter the MAC address of the desired sensor and choose a name
 				tagName = "Tagin nimi"
 			case _:
 				tagName = "Undefined tag"
@@ -46,19 +44,19 @@ async def main():
 		if amountOfData >= targetAmount:
 			break
 
-	# URL määrittää mitä actionia lähtee tekee esim tässä "insertOne" laitetaan siis yksi tiedosto tietokantaa. 
-	# Eri actionit löytyy MongoDB API dokumentaatiosta
+	# URL determines what action to perform, for example, "insertOne" here means inserting one file into the database.
+	# Different actions can be found in the MongoDB API documentation.
 	url = "https://eu-central-1.aws.data.mongodb-api.com/app/data-mjiefpu/endpoint/data/v1/action/insertOne"
 
-	headers = {"api-key": "H5BSBKs5bEPavMlZZsSmAqRQ7i9scLtOT5XlwXpUkfoemTp6LTp5mZZSRRO1wYaB"}  # Tänne taas pitäs laittaa se API key joka löytyy oman MongoDB databasen sivuilta
+	headers = {"api-key": ""} # Here you should again put the API key that can be found on your own MongoDB database website
 
 	documentToAdd = {"date": date, "time": time, "data": datas}
 
-	# Tää pitäs täyttää sun oman databasen tietojen mukaan
+	# This should be filled according to the data in your own database.
 	insertPayload = {
-		"dataSource": "Cluster0",
-		"database": "Urban&Local",
-		"collection": "Sensor_data",
+		"dataSource": "", # Your cluster name
+		"database": "", # Your database name
+		"collection": "", # Your database collection name
 		"document": documentToAdd
 	}
 
@@ -74,6 +72,6 @@ async def main():
 	else:
 		print("Error")
 
-# Tämä vaaditaan asynkroonisiin ruuvitag funktioihin
+# This is required for asynchronous RuuviTag functions
 if __name__ == "__main__":
 	asyncio.get_event_loop().run_until_complete(main())
